@@ -136,8 +136,36 @@
     letter-spacing: -0.012em;
   }
 
+  /* Shared section heading. */
+  .sec { border-top: 1px solid var(--line); padding: 64px 0 72px; }
+  .sec h2 { font-size: 1.5rem; font-weight: 500; letter-spacing: -0.02em; }
+  .sec .note { margin-top: 10px; max-width: 64ch; color: var(--muted); font-size: 0.95rem; line-height: 1.55; }
+
+  /* The problem: the same model's weights on 80 GB GPUs, before and after. One square = one GPU. */
+  .gpus { margin-top: 40px; display: grid; gap: 34px; }
+  .row { display: grid; grid-template-columns: 220px 1fr; gap: 28px; align-items: center; }
+  .row .what { font-size: 15px; line-height: 1.45; }
+  .row .what b { display: block; font-size: 1.6rem; font-weight: 500; letter-spacing: -0.02em; }
+  .row .what span { color: var(--muted); font-size: 13px; }
+  .cards { display: flex; flex-wrap: wrap; gap: 6px; }
+  .cards i { width: 26px; height: 34px; background: var(--fg); opacity: .82; }
+  .row.after .cards i { background: var(--accent); opacity: 1; }
+  .row .count { font-size: 12px; color: var(--muted); margin-top: 10px; }
+
+  /* What is different: three numbered lines, divided, no cards. */
+  .diff { margin-top: 36px; list-style: none; counter-reset: d; }
+  .diff li {
+    counter-increment: d;
+    display: grid; grid-template-columns: 64px 1fr 1.3fr; gap: 28px; align-items: baseline;
+    padding: 26px 0; border-top: 1px solid var(--line);
+  }
+  .diff li:last-child { border-bottom: 1px solid var(--line); }
+  .diff li::before { content: "0" counter(d); font-family: "Geist Mono", ui-monospace, monospace; font-size: 13px; color: var(--accent); }
+  .diff h3 { font-size: 1.2rem; font-weight: 500; letter-spacing: -0.012em; line-height: 1.3; }
+  .diff p { color: var(--muted); font-size: 0.98rem; line-height: 1.55; max-width: 52ch; }
+
   /* Results: measured and expected, kept apart. */
-  .proof { padding: 24px 0 88px; }
+  .proof { border-top: 1px solid var(--line); padding: 64px 0 88px; }
   .proof h2 { font-size: 1.5rem; font-weight: 500; letter-spacing: -0.02em; }
   .proof .note { margin-top: 10px; max-width: 64ch; color: var(--muted); font-size: 0.95rem; line-height: 1.55; }
   table { width: 100%; margin-top: 32px; border-collapse: collapse; }
@@ -178,6 +206,10 @@
     .bar { flex-direction: column; gap: 10px; }
     .result { grid-template-columns: 1fr; gap: 18px; padding: 48px 0 40px; }
     .proof { padding-bottom: 56px; }
+    .sec { padding: 48px 0 52px; }
+    .row { grid-template-columns: 1fr; gap: 14px; }
+    .cards i { width: 20px; height: 26px; }
+    .diff li { grid-template-columns: 1fr; gap: 8px; padding: 22px 0; }
     table, thead, tbody, tr, th, td { display: block; }
     thead { display: none; }
     tr { padding: 18px 0; border-bottom: 1px solid var(--line); }
@@ -219,6 +251,46 @@
     <section class="result">
       <p class="big">8&times;</p>
       <p class="lead">Large mixture-of-experts models, about eight times smaller than their 16-bit originals, with quality close to the original.</p>
+    </section>
+
+    <section class="sec" aria-labelledby="problem-h">
+      <h2 id="problem-h">The problem</h2>
+      <p class="note">The largest open models are mixtures of experts with hundreds of billions of parameters. At 16 bits, their weights alone fill several servers, so most teams cannot run them at all. Here is a 700B-parameter model on 80 GB GPUs.</p>
+      <div class="gpus">
+        <div class="row">
+          <p class="what"><b class="mono">1,400 GB</b><span>16 bits per weight</span></p>
+          <div>
+            <div class="cards" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+            <p class="count mono">18 GPUs, three servers</p>
+          </div>
+        </div>
+        <div class="row after">
+          <p class="what"><b class="mono">175 GB</b><span>2 bits per weight, with SOLOS</span></p>
+          <div>
+            <div class="cards" aria-hidden="true"><i></i><i></i><i></i></div>
+            <p class="count mono">3 GPUs, one server</p>
+          </div>
+        </div>
+      </div>
+      <p class="note">Weights only: serving also needs memory for the context, so a real deployment adds a margin on top of both.</p>
+    </section>
+
+    <section class="sec" aria-labelledby="diff-h">
+      <h2 id="diff-h">What is different</h2>
+      <ol class="diff">
+        <li>
+          <h3>Bits go where they matter</h3>
+          <p>SOLOS measures how much each part of the model affects its output, then gives every part its own precision under one size budget for the whole file. Sensitive parts keep more bits; robust ones give theirs up.</p>
+        </li>
+        <li>
+          <h3>Repaired after compression, same size</h3>
+          <p>Once compressed, the model trains against the original's own predictions to win back quality. The file does not grow: a repair is kept only if it measures better.</p>
+        </li>
+        <li>
+          <h3>Runs compressed</h3>
+          <p>The model is served straight from its compressed form, on GPU kernels written for it. Nothing is expanded back to full size in memory.</p>
+        </li>
+      </ol>
     </section>
 
     <section class="proof" aria-labelledby="proof-h">
