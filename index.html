@@ -223,7 +223,7 @@
 
     <section class="proof" aria-labelledby="proof-h">
       <h2 id="proof-h">Results</h2>
-      <p class="note">Quality is the KL divergence between the compressed model's predictions and the original's: 0 means identical, lower is better. Own answers are the original model's replies across code, multilingual, math and chat. Expected rows are what our current version should reach, estimated from measured runs; those runs are next.</p>
+      <p class="note">Quality is the KL divergence between the compressed model's predictions and the original's: 0 means identical, lower is better. Own answers are the original model's replies across code, multilingual, math and chat. Expected rows are what our current version should reach, estimated from measured runs; those runs are next. The models here are small because we have not yet had the GPU budget for large ones. Larger models usually lose less at the same bits per weight, so we expect lower KL on the models people actually run; the small ones show what the method already does in the harder case.</p>
       <table>
         <thead>
           <tr><th>Model</th><th>Bits per weight</th><th>KL to the original</th><th>Status</th></tr>
