@@ -3,34 +3,36 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>SOLOS | Large AI models, one server</title>
-<meta name="description" content="SOLOS compresses large AI models to about 2 bits per weight, so they run on one server at near-original quality.">
+<title>SOLOS | Big AI models, 8× smaller</title>
+<meta name="description" content="SOLOS compresses AI models to one-eighth of their size. At equal size, our Qwen3.8-27B deviates from the original half as much as Unsloth's file.">
 <meta property="og:title" content="SOLOS">
-<meta property="og:description" content="Large AI models, compressed to about 2 bits per weight, on one server at near-original quality.">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23141518'/%3E%3Crect x='17' y='6' width='9' height='20' fill='%23e5482a'/%3E%3C/svg%3E">
+<meta property="og:description" content="AI models compressed to one-eighth of their size. Measured: half the deviation of Unsloth's file at equal size.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%2307090E'/%3E%3Crect x='17' y='6' width='9' height='20' fill='%2322E3B8'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-  /* One palette: neutral off-white / off-black plus one accent. Light and dark follow the visitor's system setting. */
+  /* The deck's palette: near-black and warm paper plus one teal accent. Dark is the default; light follows the
+     visitor's system setting. */
   :root {
-    --bg: #f3f3f1;
-    --fg: #141518;
-    --muted: #5d6068;
-    --line: #dcdcd8;
-    --accent: #e5482a;
+    --bg: #07090e;
+    --fg: #eef2f7;
+    --muted: #9aa8be;
+    --line: #22304a;
+    --accent: #22e3b8;
     --ease: cubic-bezier(.16, 1, .3, 1);
-    color-scheme: light dark;
+    color-scheme: dark light;
   }
-  @media (prefers-color-scheme: dark) {
+  @media (prefers-color-scheme: light) {
     :root {
-      --bg: #0f1012;
-      --fg: #ececea;
-      --muted: #9b9da4;
-      --line: #25272b;
-      --accent: #ff6a47;
+      --bg: #f3f1ea;
+      --fg: #0b0f17;
+      --muted: #4a5568;
+      --line: #dcd7cb;
+      --accent: #086b58;
     }
   }
+  h1, h2, h3, .big, .mark, .display { font-family: "Space Grotesk", ui-sans-serif, system-ui, sans-serif; }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
   html { background: var(--bg); }
@@ -40,13 +42,13 @@
     flex-direction: column;
     background: var(--bg);
     color: var(--fg);
-    font-family: "Geist", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+    font-family: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
   }
   a { color: inherit; }
   a:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; border-radius: 2px; }
-  .mono { font-family: "Geist Mono", ui-monospace, monospace; font-feature-settings: "tnum"; }
+  .mono { font-family: "Space Grotesk", ui-sans-serif, system-ui, sans-serif; font-feature-settings: "tnum"; }
 
   .wrap { width: 100%; max-width: 1200px; margin: 0 auto; padding: 0 40px; }
 
@@ -89,7 +91,7 @@
     font-size: 15px; font-weight: 500; text-decoration: none; white-space: nowrap;
     transition: transform .25s var(--ease), background-color .25s;
   }
-  .cta:hover { background: var(--accent); color: #141518; }
+  .cta:hover { background: var(--accent); color: #07090e; }
   .cta:active { transform: translateY(1px) scale(.98); }
 
   /* The process: one field of weights, compressed step by step, on a loop. One label names the step in progress. */
@@ -160,7 +162,7 @@
     padding: 26px 0; border-top: 1px solid var(--line);
   }
   .diff li:last-child { border-bottom: 1px solid var(--line); }
-  .diff li::before { content: "0" counter(d); font-family: "Geist Mono", ui-monospace, monospace; font-size: 13px; color: var(--accent); }
+  .diff li::before { content: "0" counter(d); font-family: "Space Grotesk", ui-sans-serif, system-ui, sans-serif; font-weight: 700; font-size: 13px; letter-spacing: .12em; color: var(--accent); }
   .diff h3 { font-size: 1.2rem; font-weight: 500; letter-spacing: -0.012em; line-height: 1.3; }
   .diff p { color: var(--muted); font-size: 0.98rem; line-height: 1.55; max-width: 52ch; }
 
@@ -177,11 +179,19 @@
   td.model { font-weight: 500; }
   td.model small { display: block; margin-top: 4px; font-weight: 400; font-size: 13px; color: var(--muted); }
   td.kl { font-size: 1.6rem; letter-spacing: -0.02em; }
-  td.kl small { display: block; margin-top: 4px; font-family: "Geist", ui-sans-serif, system-ui, sans-serif; font-size: 13px; color: var(--muted); letter-spacing: 0; }
+  td.kl small { display: block; margin-top: 4px; font-family: "Inter", ui-sans-serif, system-ui, sans-serif; font-size: 13px; color: var(--muted); letter-spacing: 0; }
+  td.kl.win { color: var(--accent); }
   td.status { font-size: 13px; color: var(--muted); }
-  tr.expected td.kl { color: var(--muted); }
-  tr.expected td.status { color: var(--accent); }
   .unit { display: none; }
+
+  /* Updates: a dated log, newest first. */
+  .log { margin-top: 32px; list-style: none; }
+  .log li { display: grid; grid-template-columns: 140px 1fr; gap: 28px; padding: 20px 0; border-top: 1px solid var(--line); }
+  .log li:last-child { border-bottom: 1px solid var(--line); }
+  .log time { font-size: 13px; color: var(--accent); letter-spacing: .04em; padding-top: 3px; }
+  .log p { font-size: 1rem; line-height: 1.55; max-width: 70ch; }
+  .log p span { color: var(--muted); }
+  .navlinks { display: inline-flex; gap: 22px; align-items: center; }
 
   footer { margin-top: auto; border-top: 1px solid var(--line); }
   footer .wrap {
@@ -210,6 +220,8 @@
     .row { grid-template-columns: 1fr; gap: 14px; }
     .cards i { width: 20px; height: 26px; }
     .diff li { grid-template-columns: 1fr; gap: 8px; padding: 22px 0; }
+    .log li { grid-template-columns: 1fr; gap: 6px; }
+    .navlinks { gap: 14px; }
     table, thead, tbody, tr, th, td { display: block; }
     thead { display: none; }
     tr { padding: 18px 0; border-bottom: 1px solid var(--line); }
@@ -223,14 +235,18 @@
 <body>
   <header class="wrap nav">
     <a class="mark" href="#">SOLOS</a>
-    <a class="link" data-email href="#">Contact</a>
+    <span class="navlinks">
+      <a class="link" href="#proof-h">Results</a>
+      <a class="link" href="#updates-h">Updates</a>
+      <a class="link" data-email href="#">Contact</a>
+    </span>
   </header>
 
   <main class="wrap">
     <section class="hero">
       <div>
-        <h1 class="rise">Frontier-size models.<br>One server.</h1>
-        <p class="sub rise">SOLOS compresses large AI models to about 2 bits per weight, so they run on one server at near-original quality.</p>
+        <h1 class="rise">Big AI models,<br>8&times; smaller.</h1>
+        <p class="sub rise">Running an AI model costs money mainly because of its size in GPU memory. SOLOS compresses models to one-eighth of their original size.</p>
         <a class="cta rise" data-email href="#">Contact</a>
       </div>
       <figure class="viz">
@@ -249,8 +265,8 @@
     </section>
 
     <section class="result">
-      <p class="big">8&times;</p>
-      <p class="lead">Large mixture-of-experts models, about eight times smaller than their 16-bit originals, with quality close to the original.</p>
+      <p class="big">&frac12;</p>
+      <p class="lead">At equal size, our Qwen3.8-27B deviates from the original half as much as Unsloth’s file, the most widely used tool: KL 0.169 against 0.349.</p>
     </section>
 
     <section class="sec" aria-labelledby="problem-h">
@@ -295,38 +311,55 @@
 
     <section class="proof" aria-labelledby="proof-h">
       <h2 id="proof-h">Results</h2>
-      <p class="note">Quality is the KL divergence between the compressed model's predictions and the original's: 0 means identical, lower is better. Own answers are the original model's replies across code, multilingual, math and chat. Expected rows are what our current version should reach, estimated from measured runs; those runs are next. The models here are small because we have not yet had the GPU budget for large ones. Larger models usually lose less at the same bits per weight, so we expect lower KL on the models people actually run; the small ones show what the method already does in the harder case.</p>
+      <p class="note">Quality is the KL divergence between the compressed model's predictions and the original's: 0 means identical, lower is better. Every number below is measured on web text (C4), on one GPU; the comparison with Unsloth uses files of the same size, scored by the same code.</p>
       <table>
         <thead>
-          <tr><th>Model</th><th>Bits per weight</th><th>KL to the original</th><th>Status</th></tr>
+          <tr><th>Model</th><th>Bits per weight</th><th>KL to the original</th><th>Unsloth, same size</th><th>Measured</th></tr>
         </thead>
         <tbody>
           <tr>
+            <td class="model">Qwen3.8-27B<small>Dense, 27B parameters</small></td>
+            <td class="mono">2.00 <span class="unit">bits per weight</span></td>
+            <td class="kl mono win">0.169<small>6.7 GB, from 53.8 GB</small></td>
+            <td class="kl mono">0.349<small>UD-IQ1_M</small></td>
+            <td class="status">Nov 23, 2026</td>
+          </tr>
+          <tr>
+            <td class="model">Qwen3.8-27B<small>Dense, 27B parameters</small></td>
+            <td class="mono">3.00 <span class="unit">bits per weight</span></td>
+            <td class="kl mono">0.058</td>
+            <td class="status">&mdash;</td>
+            <td class="status">Nov 21, 2026</td>
+          </tr>
+          <tr>
             <td class="model">OLMoE-1B-7B<small>Mixture of experts, 7B parameters</small></td>
             <td class="mono">1.98 <span class="unit">bits per weight</span></td>
-            <td class="kl mono">0.049<small>on its own answers</small></td>
-            <td class="status">Measured</td>
+            <td class="kl mono">0.175</td>
+            <td class="status">&mdash;</td>
+            <td class="status">Nov 4, 2026</td>
           </tr>
           <tr>
             <td class="model">Qwen3.6-35B-A3B<small>Mixture of experts, 35B parameters</small></td>
             <td class="mono">3.00 <span class="unit">bits per weight</span></td>
-            <td class="kl mono">0.070<small>on web text (C4), earlier version</small></td>
-            <td class="status">Measured</td>
-          </tr>
-          <tr class="expected">
-            <td class="model">Qwen3.6-35B-A3B<small>Mixture of experts, 35B parameters</small></td>
-            <td class="mono">3.00 <span class="unit">bits per weight</span></td>
-            <td class="kl mono">0.02<small>on its own answers</small></td>
-            <td class="status">Expected</td>
-          </tr>
-          <tr class="expected">
-            <td class="model">Qwen3.6-35B-A3B<small>Mixture of experts, 35B parameters</small></td>
-            <td class="mono">2.00 <span class="unit">bits per weight</span></td>
-            <td class="kl mono">0.04<small>on its own answers</small></td>
-            <td class="status">Expected</td>
+            <td class="kl mono">0.070</td>
+            <td class="status">&mdash;</td>
+            <td class="status">Oct 2026</td>
           </tr>
         </tbody>
       </table>
+    </section>
+
+    <section class="sec" aria-labelledby="updates-h">
+      <h2 id="updates-h">Updates</h2>
+      <p class="note">What changed, newest first.</p>
+      <ol class="log">
+        <li><time class="mono" datetime="2026-11-23">Nov 23, 2026</time><p>Qwen3.8-27B at 2 bits per weight: KL 0.169, against 0.349 for Unsloth’s file of the same size. <span>From 0.265 two days earlier.</span></p></li>
+        <li><time class="mono" datetime="2026-11-21">Nov 21, 2026</time><p>Qwen3.8-27B at 3 bits per weight: KL 0.058. <span>Our 27B 2-bit file serves at 65–70 tokens per second on one GPU.</span></p></li>
+        <li><time class="mono" datetime="2026-11-16">Nov 16, 2026</time><p>Our llama.cpp engine runs SOLOS files on NVIDIA GPUs. <span>587 of 587 kernel tests pass.</span></p></li>
+        <li><time class="mono" datetime="2026-11-04">Nov 4, 2026</time><p>OLMoE at 2 bits per weight: KL 0.175. <span>0.195 on Nov 1, 0.277 on Oct 3: 37% less error in a month.</span></p></li>
+        <li><time class="mono" datetime="2026-10">Oct 2026</time><p>Qwen3.6-35B-A3B at 3 bits per weight: KL 0.070.</p></li>
+        <li><time class="mono" datetime="2026-07">Jul 2026</time><p>Work on SOLOS begins.</p></li>
+      </ol>
     </section>
   </main>
 
@@ -368,7 +401,7 @@
       { id: "alloc",   from: 5500,  to: 10000, label: "Allocate",   text: "Allocate: each block gets the bits it needs, under one size budget." },
       { id: "search",  from: 10000, to: 14200, label: "Search",     text: "Search: blocks trade bits where the trade measures better." },
       { id: "recover", from: 14200, to: 18700, label: "Recover",    text: "Recover: the compressed model trains against the original, at the same size." },
-      { id: "hold",    from: 18700, to: LOOP,  label: "Compressed", text: "About 2 bits per weight: eight times smaller, close to the original." },
+      { id: "hold",    from: 18700, to: LOOP,  label: "Compressed", text: "About 2 bits per weight: eight times smaller than the original." },
     ];
 
     // The field and its blocks (fixed).
